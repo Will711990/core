@@ -42,6 +42,9 @@ class EnOceanBinarySensor(enocean.EnOceanDevice, BinarySensorEntity):
     Supported EEPs (EnOcean Equipment Profiles):
     - F6-02-01 (Light and Blind Control - Application Style 2)
     - F6-02-02 (Light and Blind Control - Application Style 1)
+    - F6-02-02 (Nodon Soft Remote)
+    - D2-03-0A (Nodon Soft Button)
+    - D5-00-01 (Nodon Door Sensor)
     """
 
     def __init__(self, dev_id, dev_name, device_class):
@@ -111,3 +114,73 @@ class EnOceanBinarySensor(enocean.EnOceanDevice, BinarySensorEntity):
                 "onoff": self.onoff,
             },
         )
+       
+        """EEP: F6-02-02 - Nodon Soft Remote"""
+
+        if packet.rorg == 0xF6:
+            press = packet.data[1]
+            if press == 0x70:
+                self._state = 4
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x50:
+                self._state = 3
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x30:
+                self._state = 2
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x10:
+                self._state = 1
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            else:
+                self._state = 0
+                self.schedule_update_ha_state()
+        
+        """EEP: D2-03-0A - Nodon Soft Button"""
+        
+        if packet.rorg == 0xD2:
+            press = packet.data[2]
+            if press == 0x01:
+                self._state = 1
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x02:
+                self._state = 2
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x03:
+                self._state = 3
+                self.schedule_update_ha_state()
+                time.sleep(2)
+                self._state = 0
+                self.schedule_update_ha_state()
+            else:
+                self._state = 0
+                self.schedule_update_ha_state()
+
+
+        """EEP: D5-00-01 - Nodon Door Sensor"""
+
+        if packet.rorg == 0xD5:
+            press = packet.data[1]
+            if press == 0x09:
+                self._state = 0
+                self.schedule_update_ha_state()
+            elif press == 0x08:
+                self._state = 1
+                self.schedule_update_ha_state()
